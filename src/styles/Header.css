@@ -1,0 +1,28 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f5ede8;
+  padding: 15px 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  margin-right: 12px;
+}
+
+.header-right {
+  cursor: pointer;
+}
+
+.dots-icon {
+  font-size: 22px;
+  color: #3a1f0c;
+}

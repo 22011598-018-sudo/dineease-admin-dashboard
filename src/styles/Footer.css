@@ -1,0 +1,18 @@
+.footer {
+  background-color: #3a1f0c;
+  color: #fff;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.social-icons svg {
+  margin-left: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.social-icons svg:hover {
+  color: #d4a574;
+}
