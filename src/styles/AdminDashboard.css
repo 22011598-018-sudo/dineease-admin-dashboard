@@ -1042,3 +1042,301 @@ body {
 .db-content::-webkit-scrollbar-thumb { background: #E8D5C8; border-radius: 10px; }
 .db-nav::-webkit-scrollbar-thumb      { background: rgba(255,255,255,0.1); border-radius: 10px; }
 .db-notif-panel::-webkit-scrollbar-thumb { background: #E8D5C8; border-radius: 10px; }
+/* ═══════════════════════════════════════════════════════════════════
+   ADMINDASHBOARD.CSS — RESPONSIVE ADDITIONS
+   Apni existing AdminDashboard.css ke BILKUL NEECHE paste karo
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE HAMBURGER BUTTON (sirf mobile par dikhega)
+   ══════════════════════════════════════════════════════════════════ */
+.db-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #2A1408;
+  padding: 4px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   TABLET — 1024px
+   ══════════════════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .db-sidebar {
+    width: 220px;
+    min-width: 220px;
+  }
+
+  .db-content {
+    padding: 18px 20px;
+  }
+
+  .db-header {
+    padding: 14px 20px;
+  }
+
+  .db-header-date {
+    display: none;
+  }
+
+  .db-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .db-search {
+    width: 150px;
+  }
+
+  .db-filter-tabs {
+    flex-wrap: wrap;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE — 768px
+   ══════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Root becomes column — sidebar overlays */
+  .db-root {
+    flex-direction: column;
+    height: 100dvh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── Sidebar: hidden by default, slides in ── */
+  .db-sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 260px;
+    min-width: 260px;
+    height: 100dvh;
+    z-index: 500;
+    transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 20px rgba(0,0,0,0.25);
+  }
+
+  /* When sidebar is open — add class "db-sidebar-open" via JS */
+  .db-sidebar.db-sidebar-open {
+    left: 0;
+  }
+
+  /* Dark overlay behind sidebar */
+  .db-sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(42, 20, 8, 0.45);
+    z-index: 499;
+    backdrop-filter: blur(2px);
+  }
+
+  .db-sidebar-overlay.visible {
+    display: block;
+  }
+
+  /* ── Main area fills screen ── */
+  .db-main {
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  .db-header {
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .db-hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .db-page-title {
+    font-size: 16px;
+  }
+
+  .db-breadcrumb {
+    display: none;
+  }
+
+  .db-header-date {
+    display: none;
+  }
+
+  /* ── Content ── */
+  .db-content {
+    padding: 14px 12px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  /* ── Stat Cards — 2 column on mobile ── */
+  .db-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .db-card {
+    padding: 14px 12px;
+    gap: 10px;
+  }
+
+  .db-card-value {
+    font-size: 22px;
+  }
+
+  .db-card-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .db-card-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* ── Panel ── */
+  .db-panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px 14px;
+    gap: 10px;
+  }
+
+  .db-panel-controls {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .db-search-wrap {
+    width: 100%;
+  }
+
+  .db-search {
+    width: 100%;
+  }
+
+  .db-filter-tabs {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .db-filter-tab {
+    flex: 1;
+    text-align: center;
+    padding: 6px 4px;
+    font-size: 11px;
+  }
+
+  /* ── Table — horizontal scroll ── */
+  .db-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .db-table {
+    min-width: 580px;
+  }
+
+  /* ── Notification panel ── */
+  .db-notif-panel {
+    width: calc(100vw - 24px);
+    right: 12px;
+    top: 64px;
+  }
+
+  /* ── Action buttons — wrap ── */
+  .db-actions {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .db-btn {
+    font-size: 10.5px;
+    padding: 4px 8px;
+  }
+
+  /* ── Footer ── */
+  .db-footer {
+    padding: 10px 14px;
+    font-size: 10.5px;
+    flex-direction: column;
+    gap: 2px;
+    text-align: center;
+  }
+
+  /* ── Subscription Cards ── */
+  .db-sub-cards {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 14px;
+    gap: 10px;
+  }
+
+  /* ── Payment Summary ── */
+  .db-pay-summary {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .db-pay-value {
+    font-size: 22px;
+  }
+
+  /* ── Webhook rows ── */
+  .db-webhook-section {
+    padding: 14px 14px 8px;
+  }
+
+  .db-webhook-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .db-webhook-plan,
+  .db-webhook-amount {
+    min-width: unset;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SMALL MOBILE — 480px
+   ══════════════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .db-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .db-card-value {
+    font-size: 20px;
+  }
+
+  .db-card-sub {
+    display: none;
+  }
+
+  .db-pay-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .db-sub-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .db-page-title {
+    font-size: 14px;
+  }
+}

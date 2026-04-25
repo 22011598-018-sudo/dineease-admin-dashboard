@@ -16,17 +16,10 @@ export default function AdminDashboard() {
   const [rejectModal, setRejectModal]           = useState(null);
   const [deactivateModal, setDeactivateModal]   = useState(null);
   const [deactivateReason, setDeactivateReason] = useState("");
+  const [sidebarOpen, setSidebarOpen]           = useState(false);
   const navigate = useNavigate();
 
   // ── 1. Load restaurants & auto-check expiry ───────────────────────────────
-  // AUTO-EXPIRY RULE:
-  //   Sirf paymentStatus = "Expired" set karo
-  //   status ko BILKUL mat chho — chahe "Active" ho ya "Deactivated"
-  //   Kyunki:
-  //     Deactivated + Expired → Expired dikhao (paymentStatus check pehle)
-  //     Deactivated only      → Deactivated by Admin
-  //     Active + Expired      → Expired
-  //     Active + Valid        → Dashboard
   useEffect(() => {
     const restaurantsRef = ref(database, "restaurants");
     const unsub = onValue(restaurantsRef, (snapshot) => {
@@ -41,7 +34,6 @@ export default function AdminDashboard() {
             new Date(r.licenseExpiresAt) < now &&
             r.paymentStatus !== "Expired"
           ) {
-            // ONLY paymentStatus set karo — status BILKUL mat badlo
             update(ref(database, `restaurants/${r.id}`), {
               paymentStatus:     "Expired",
               updatedAt:         now.toISOString(),
@@ -57,7 +49,7 @@ export default function AdminDashboard() {
     });
 
     return () => unsub();
-  }, []);
+  }, [database]);
 
   // ── 2. Load admin notifications ───────────────────────────────────────────
   useEffect(() => {
@@ -77,24 +69,16 @@ export default function AdminDashboard() {
   }, []);
 
   // ── ACTIVATE ──────────────────────────────────────────────────────────────
-  // ACTIVATE RULE:
-  //   Agar paymentStatus === "Expired":
-  //     → sirf status = "Active" karo, paymentStatus "Expired" rehne do
-  //     → Restaurant ko naya plan lena hoga login par
-  //   Agar paymentStatus !== "Expired" (sirf Deactivated by admin):
-  //     → status = "Active" + paymentStatus = "Paid" (full activate)
   const handleActivate = (id) => {
     const restaurant = restaurants.find((r) => r.id === id);
 
     if (restaurant?.paymentStatus === "Expired") {
-      // Expired account — only unblock, don't reset paymentStatus
       update(ref(database, `restaurants/${id}`), {
         status:            "Active",
         deactivatedReason: null,
         updatedAt:         new Date().toISOString(),
       });
     } else {
-      // Admin-deactivated (not expired) — full activate
       update(ref(database, `restaurants/${id}`), {
         status:             "Active",
         paymentStatus:      "Paid",
@@ -106,9 +90,6 @@ export default function AdminDashboard() {
   };
 
   // ── DEACTIVATE with reason ────────────────────────────────────────────────
-  // paymentStatus intentionally NOT changed
-  // Login check: paymentStatus === "Expired" pehle → Expired message
-  //              status === "Deactivated" baad    → Deactivated by Admin
   const handleDeactivateConfirm = async () => {
     if (!deactivateModal) return;
     const { id, email, name } = deactivateModal;
@@ -183,7 +164,6 @@ export default function AdminDashboard() {
   // ── Derived stats ─────────────────────────────────────────────────────────
   const total       = restaurants.length;
   const active      = restaurants.filter((r) => r.status === "Active" && r.paymentStatus !== "Expired").length;
-  //const deactivated = restaurants.filter((r) => r.status === "Deactivated" && r.paymentStatus !== "Expired").length;
   const expired     = restaurants.filter((r) => r.paymentStatus === "Expired").length;
   const pending     = restaurants.filter((r) => r.status === "Pending" || !r.status).length;
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -219,12 +199,6 @@ export default function AdminDashboard() {
     return <span className="db-expiry-ok">{exp.toLocaleDateString("en-US", { day:"numeric", month:"short", year:"numeric" })}</span>;
   };
 
-  // ── Status badge ──────────────────────────────────────────────────────────
-  // PRIORITY (same as login check):
-  //   1. paymentStatus === "Expired"                            → Expired
-  //   2. status === "Deactivated" (paymentStatus !== "Expired") → Deactivated by Admin
-  //   3. status === "Active"                                    → Active
-  //   4. else                                                   → Pending
   const getStatusBadge = (res) => {
     if (res.paymentStatus === "Expired") {
       return (
@@ -276,10 +250,11 @@ export default function AdminDashboard() {
       {rejectModal && (
         <div style={{
           position:"fixed", inset:0, background:"rgba(42,20,8,0.55)",
-          display:"flex", alignItems:"center", justifyContent:"center", zIndex:2000
+          display:"flex", alignItems:"center", justifyContent:"center", zIndex:2000,
+          padding:"16px"
         }}>
           <div style={{
-            background:"#fff", borderRadius:18, padding:32, maxWidth:420, width:"90%",
+            background:"#fff", borderRadius:18, padding:32, maxWidth:420, width:"100%",
             boxShadow:"0 16px 48px rgba(42,20,8,0.18)"
           }}>
             <div style={{ fontSize:32, marginBottom:12, textAlign:"center" }}>⚠️</div>
@@ -314,11 +289,12 @@ export default function AdminDashboard() {
       {deactivateModal && (
         <div style={{
           position:"fixed", inset:0, background:"rgba(42,20,8,0.55)",
-          display:"flex", alignItems:"center", justifyContent:"center", zIndex:2000
+          display:"flex", alignItems:"center", justifyContent:"center", zIndex:2000,
+          padding:"16px"
         }}>
           <div style={{
-            background:"#fff", borderRadius:18, padding:32, maxWidth:460, width:"90%",
-            boxShadow:"0 16px 48px rgba(42,20,8,0.18)"
+            background:"#fff", borderRadius:18, padding:32, maxWidth:460, width:"100%",
+            boxShadow:"0 16px 48px rgba(42,20,8,0.18)", maxHeight:"90vh", overflowY:"auto"
           }}>
             <div style={{ fontSize:32, marginBottom:12, textAlign:"center" }}>🔒</div>
             <h3 style={{ fontSize:17, fontWeight:800, color:"#2A1408", marginBottom:8, textAlign:"center" }}>
@@ -370,8 +346,14 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {/* ══════ SIDEBAR OVERLAY (mobile) ══════ */}
+      <div
+        className={`db-sidebar-overlay ${sidebarOpen ? "visible" : ""}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
       {/* ══════ SIDEBAR ══════ */}
-      <aside className="db-sidebar">
+      <aside className={`db-sidebar ${sidebarOpen ? "db-sidebar-open" : ""}`}>
         <div className="db-sidebar-top">
           <div className="db-logo-wrap">
             <img src={DineLogo} alt="DineEase" className="db-logo-img" />
@@ -383,7 +365,9 @@ export default function AdminDashboard() {
         </div>
 
         <nav className="db-nav">
-          <button className={`db-nav-item ${activeTab === "clients" ? "active" : ""}`} onClick={() => setActiveTab("clients")}>
+          <button
+            className={`db-nav-item ${activeTab === "clients" ? "active" : ""}`}
+            onClick={() => { setActiveTab("clients"); setSidebarOpen(false); }}>
             <span className="db-nav-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
@@ -394,7 +378,9 @@ export default function AdminDashboard() {
             <span className="db-nav-badge">{total}</span>
           </button>
 
-          <button className={`db-nav-item ${activeTab === "subscriptions" ? "active" : ""}`} onClick={() => setActiveTab("subscriptions")}>
+          <button
+            className={`db-nav-item ${activeTab === "subscriptions" ? "active" : ""}`}
+            onClick={() => { setActiveTab("subscriptions"); setSidebarOpen(false); }}>
             <span className="db-nav-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
@@ -404,7 +390,9 @@ export default function AdminDashboard() {
             <span className="db-nav-badge">{active}</span>
           </button>
 
-          <button className={`db-nav-item ${activeTab === "payments" ? "active" : ""}`} onClick={() => setActiveTab("payments")}>
+          <button
+            className={`db-nav-item ${activeTab === "payments" ? "active" : ""}`}
+            onClick={() => { setActiveTab("payments"); setSidebarOpen(false); }}>
             <span className="db-nav-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
@@ -413,7 +401,9 @@ export default function AdminDashboard() {
             Payments
           </button>
 
-          <button className={`db-nav-item ${activeTab === "blacklist" ? "active" : ""}`} onClick={() => setActiveTab("blacklist")}>
+          <button
+            className={`db-nav-item ${activeTab === "blacklist" ? "active" : ""}`}
+            onClick={() => { setActiveTab("blacklist"); setSidebarOpen(false); }}>
             <span className="db-nav-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
@@ -444,6 +434,17 @@ export default function AdminDashboard() {
       <div className="db-main">
 
         <header className="db-header">
+          {/* Hamburger — sirf mobile par dikhega */}
+          <button className="db-hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2.5"
+              strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+
           <div className="db-header-left">
             <h1 className="db-page-title">
               {activeTab === "clients"       && "Client Management"}
@@ -602,7 +603,6 @@ export default function AdminDashboard() {
                                     📍 {[res.area, res.city].filter(Boolean).join(", ")}
                                   </div>
                                 )}
-                                {/* Expired priority over Deactivated in label */}
                                 {res.paymentStatus === "Expired" && (
                                   <div style={{ fontSize:10, color:"#E67E22", marginTop:2, fontWeight:700 }}>
                                     ⏰ License expired — subscription time ended
@@ -719,7 +719,7 @@ export default function AdminDashboard() {
                     ) : (
                       restaurants.map((res, i) => (
                         <tr key={res.id} className="db-tr">
-                          <td className="db-td-num">{String(i+1).padStart(2,"0")}</td>
+                          <td className="db-td-num">{String(i+1).padStart(2,"00")}</td>
                           <td>
                             <div className="db-name-cell">
                               <div className="db-avatar">{(res.restaurantName || "R")[0].toUpperCase()}</div>
@@ -819,7 +819,7 @@ export default function AdminDashboard() {
                     ) : (
                       restaurants.map((res,i) => (
                         <tr key={res.id} className="db-tr">
-                          <td className="db-td-num">{String(i+1).padStart(2,"0")}</td>
+                          <td className="db-td-num">{String(i+1).padStart(2,"00")}</td>
                           <td>
                             <div className="db-name-cell">
                               <div className="db-avatar">{(res.restaurantName||"R")[0].toUpperCase()}</div>

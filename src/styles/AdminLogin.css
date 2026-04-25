@@ -607,4 +607,147 @@
 .al-forgot-done-btn {
   width: 100%;
   margin-top: 4px !important;
+} /* ═══════════════════════════════════════════════════════════════════
+   ADMINLOGIN.CSS — RESPONSIVE ADDITIONS
+   Apni existing AdminLogin.css ke BILKUL NEECHE paste karo
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Tablet (max 900px) ── */
+@media (max-width: 900px) {
+  .al-card {
+    flex-direction: column;
+    height: auto;
+    max-width: 500px;
+    border-radius: 24px;
+  }
+
+  .al-left {
+    width: 100%;
+    height: 220px;
+    border-radius: 0;
+  }
+
+  .al-hero-images {
+    width: 280px;
+    height: 200px;
+  }
+
+  .al-hero-img-1 { width: 180px; height: 138px; top: 16px; left: 10px; }
+  .al-hero-img-2 { width: 150px; height: 115px; top: 80px; left: 110px; }
+  .al-hero-img-3 { display: none; }
+
+  .al-right {
+    padding: 30px 28px 36px;
+  }
+
+  .al-title { font-size: 26px; }
+}
+
+/* ── Mobile (max 600px) ── */
+@media (max-width: 600px) {
+  .al-root {
+    padding: 0;
+    align-items: flex-start;
+    background: #FDF8F0;
+  }
+
+  .al-card {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+    flex-direction: column;
+  }
+
+  /* Left panel — compact banner */
+  .al-left {
+    width: 100%;
+    height: 170px;
+    min-height: 170px;
+    flex-shrink: 0;
+    border-radius: 0 0 28px 28px;
+  }
+
+  .al-hero-images {
+    display: none;
+  }
+
+  .al-logo-area {
+    position: relative;
+    top: unset; left: unset;
+    justify-content: center;
+    z-index: 5;
+  }
+
+  .al-logo-name { font-size: 26px; }
+  .al-logo-tagline { font-size: 11px; }
+
+  .al-left-badge {
+    bottom: 16px;
+    right: 50%;
+    transform: translateX(50%);
+    font-size: 10px;
+    padding: 5px 14px;
+  }
+
+  .al-circle-tl,
+  .al-circle-br,
+  .al-bolt-1,
+  .al-bolt-2,
+  .al-doodle-ring {
+    display: none;
+  }
+
+  /* Right panel */
+  .al-right {
+    flex: 1;
+    padding: 28px 20px 32px;
+    justify-content: flex-start;
+  }
+
+  .al-right-header {
+    margin-bottom: 22px;
+  }
+
+  .al-title {
+    font-size: 24px;
+  }
+
+  .al-subtitle {
+    font-size: 12.5px;
+  }
+
+  .al-input-field {
+    font-size: 15px; /* prevent iOS zoom on focus */
+    padding: 14px 42px 14px 44px;
+  }
+
+  .al-btn-login {
+    font-size: 15px;
+    padding: 15px;
+  }
+
+  .al-footer-note {
+    margin-top: 16px;
+  }
+
+  /* Forgot modal — full screen on mobile */
+  .al-forgot-modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .al-forgot-modal {
+    border-radius: 24px 24px 0 0;
+    max-width: 100%;
+    padding: 28px 20px 36px;
+  }
+}
+
+/* ── Small Mobile (max 380px) ── */
+@media (max-width: 380px) {
+  .al-title { font-size: 21px; }
+  .al-right { padding: 22px 16px 28px; }
+  .al-logo-name { font-size: 22px; }
 }
