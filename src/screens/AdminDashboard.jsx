@@ -183,7 +183,7 @@ export default function AdminDashboard() {
   // ── Derived stats ─────────────────────────────────────────────────────────
   const total       = restaurants.length;
   const active      = restaurants.filter((r) => r.status === "Active" && r.paymentStatus !== "Expired").length;
-  const deactivated = restaurants.filter((r) => r.status === "Deactivated" && r.paymentStatus !== "Expired").length;
+  //const deactivated = restaurants.filter((r) => r.status === "Deactivated" && r.paymentStatus !== "Expired").length;
   const expired     = restaurants.filter((r) => r.paymentStatus === "Expired").length;
   const pending     = restaurants.filter((r) => r.status === "Pending" || !r.status).length;
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -884,7 +884,7 @@ function BlacklistTab({ database }) {
       }
     });
     return () => unsub();
-  }, []);
+  }, [database]);
 
   const removeFromBlacklist = async (key) => {
     await remove(ref(database, `blacklistedEmails/${key}`));
